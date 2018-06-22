@@ -5,7 +5,7 @@ Josh Blaz
 Denison University -- 2019
 blaz_j1@denison.edu
 
-NOTE: User must enter SST credentials below @ lines 79 & 80.
+NOTE: User must enter SST credentials below @ lines 81 & 82.
 """
 # *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** ***
 # Imports allowing the use of Selenium and Geckodriver. 
@@ -77,6 +77,7 @@ def teamData(team, data1, data2, opp1, opp2):
     elem1.clear() 
     elem2.clear()
 
+    # Send the User's SST Email and Pass to the text field elements
     elem1.send_keys("") # Insert Email inside of quotes
     elem2.send_keys("")  # Insert Password inside of quotes
     
@@ -223,7 +224,6 @@ def teamData(team, data1, data2, opp1, opp2):
             
     driver.quit() # Close driver once we get our data.
 
-
 def toPanda1(data1, opp1, teamname):
     ''' - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     Converts first tabular dataset into a pandas dataframe and exports it. Does so for the Opponent dataset as well.
@@ -233,26 +233,27 @@ def toPanda1(data1, opp1, teamname):
     #create header lists for table headers
     headerlist1 = ["Player", "Min", "SST", "SST ex Pts", "Pts", "PPP", "Ast", "T/O", "Ast/TO", "Stl", "Stl Pos", "Blk", "Ttl Reb", "Off Reb", "Def Reb"]
     counter = 1
+
     for table in data1: 
+        # Dynamically create names for each CSV export
         csv_name = teamname + "_" + str(counter) + "_Table1.csv"
         df = pd.DataFrame(table, columns = headerlist1)
-        df['Min'] = df['Min'].str.split(":").str[0] #Convert minutes to alpha numeric
-        df.replace('-', 0)
-        print(df['Min'])
+        df['Min'] = df['Min'].str.split(":").str[0] # Convert minutes to alpha numeric
+        df.replace('-', 0) # Convert -'s to 0's for aggregation
         df.to_csv(csv_name)
         counter = counter + 1
     
-    counter = 1 # reset counter
+    # Reset counter for naming CSVs
+    counter = 1 
     for table in opp1:
         csv_name = teamname + "_" + str(counter) + "_Opponent_Table1.csv"
         df = pd.DataFrame(table, columns = headerlist1)
         df['Min'] = df['Min'].str.split(":").str[0]
         df.replace('-', 0)
-        print(df['Min'])
         df.to_csv(csv_name)
         counter = counter + 1
     
-def toPanda2(data2, o, teamname):
+def toPanda2(data2, opp2, teamname):
     ''' - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     Converts second tabular dataset into a pandas dataframe and exports it. Does so for the Opponent dataset as well.
     The naming conventions are such that the 4 subsequent .csv files are for each game
