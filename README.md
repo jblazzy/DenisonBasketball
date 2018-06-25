@@ -11,18 +11,18 @@ If you do run end up running this program, be aware that 200+ CSV files will be 
 
 ## Installation (MAC)
 
-Download Mozilla Firefox:
+Download Mozilla Firefox: <br/>
 https://www.mozilla.org/en-US/firefox/new/
 
-Download Homebrew (brew.sh): 
+Download Homebrew (brew.sh): <br/>
 /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
 
-Download Geckodriver: 
+Download Geckodriver: <br/>
 brew install geckodriver
 
-Download Selenium:
+Download Selenium:<br/>
 pip install selenium
 
-## Documentation:
+## Documentation
 https://github.com/mozilla/geckodriver/releases
 https://docs.seleniumhq.org/docs/
