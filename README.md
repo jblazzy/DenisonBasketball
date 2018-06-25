@@ -25,5 +25,5 @@ Download Selenium:<br/>
 pip install selenium
 
 ## Documentation
-https://github.com/mozilla/geckodriver/releases
+https://github.com/mozilla/geckodriver/releases <br/>
 https://docs.seleniumhq.org/docs/
