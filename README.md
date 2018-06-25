@@ -14,6 +14,7 @@ If you do run end up running this program, be aware that 200+ CSV files will be 
 Download Mozilla Firefox: <br/>
 https://www.mozilla.org/en-US/firefox/new/
 
+(Command line)
 Download Homebrew (brew.sh): <br/>
 /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
 
