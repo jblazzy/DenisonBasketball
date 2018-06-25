@@ -1,6 +1,6 @@
 # DenisonBasketball
 
-In order to run this program, you must credentials to the Synergy Sports Tech Website, I would include 
+In order to run this program, you must have credentials to the Synergy Sports Tech Website, I would include 
 mine, but my credentials were only available for the development of this program. Please follow the installation
 guide below.
 
