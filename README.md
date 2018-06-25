@@ -9,7 +9,7 @@ mine, but my credentials were only available for the development of this program
 
 If you do run end up running this program, be aware that 200+ CSV files will be exported to the folder containing the program.
 
-## Installation (MAC)
+## Installation (MAC) (Command Line)
 
 Download Mozilla Firefox: <br/>
 https://www.mozilla.org/en-US/firefox/new/
