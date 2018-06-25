@@ -1,10 +1,8 @@
 """
-BasketballAnalytics.py
-
-Josh Blaz
-Denison University -- 2019
-blaz_j1@denison.edu
-
+-- BasketballAnalytics.py
+-- Josh Blaz
+-- Denison University -- 2019
+-- blaz_j1@denison.edu
 NOTE: User must enter SST credentials below @ lines 81 & 82.
 """
 # *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** ***
