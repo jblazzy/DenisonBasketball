@@ -19,6 +19,9 @@ brew install geckodriver
 Download Selenium:<br/>
 pip install selenium
 
+Download Pandas:<br/>
+pip install pandas 
+
 ## Documentation
 https://github.com/mozilla/geckodriver/releases <br/>
 https://docs.seleniumhq.org/docs/
