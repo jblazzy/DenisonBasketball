@@ -1,33 +1,34 @@
 """
 -- BasketballAnalytics.py
 -- Josh Blaz
--- Denison University -- 2019
+-- Denison University -- c/o 2019
 -- blaz_j1@denison.edu
-NOTE: User must enter SST credentials below @ lines 81 & 82.
+NOTE: User must enter SST credentials below @ lines 88 & 89
 """
-# *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** ***
+
 # Imports allowing the use of Selenium and Geckodriver. 
 from lxml import html
 from selenium import webdriver
-# Allow us to send keys through the Webdriver.
+# Allows us to send keys through the Webdriver.
 from selenium.webdriver.common.keys import Keys 
-# Allow us to wait for certain elements to load in. Gives us much more control over the Webdriver.
+# Allows us to wait for certain elements to load in. Gives us much more control over the Webdriver.
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+# Allows us to write a function that confirms the existence of an element (EBS issue)
+from selenium.common.exceptions import NoSuchElementException  
 # Imported to use simple sleep function. (used rarely)
 import time 
 # Import pandas allowing us to export Lists of Lists to excel files.
 import pandas as pd
-# *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** ***
 
 def dropdown(team):
     ''' - - - - - - - - - - - - - - - - - - - - - - - - 
-    Determines the input team's dropdown search string. In this case, we're only going to be searching for NCAC teams. 
+    Determines the input team's dropdown search string. Only NCAC teams.
     '''
     if team == "Denison":
         return "Denison (OH) Big Red"
-    elif team == "Wittenberg":
+    elif team == "Wittenberg" or "Witt":
         return "Wittenberg"
     elif team == "Wooster":
         return "Wooster Fighting Scots"
@@ -45,6 +46,22 @@ def dropdown(team):
         return "Kenyon Lords"
     elif team == "Allegheny":
         return "Allegheny Gators"
+
+def confirm_element(xpath,driver):
+    ''' - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+
+    Function that confirms the existence of an element, given that element's xpath.
+    The reason for this function is that some teams don't record Extended Box Score (EBS), which we need
+    to analyze data. IE: Mount Vernon Nazarene
+    xpath - xpath of the element whose existence we're confirming
+    driver - webdriver used to access the site, pass this so we don't have to create another webdriver
+    If this element does not exist, we need to skip this team.
+    Returns True if the element exists, False if not.
+    - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - ''' 
+    if driver.find_elements_by_xpath(xpath):
+        return True
+    else:
+        return False
 
 
 def teamData(team, data1, data2, opp1, opp2):
@@ -65,60 +82,85 @@ def teamData(team, data1, data2, opp1, opp2):
     driver.get("https://www.synergysportstech.com/synergy/")
     assert "Synergy" in driver.title
     
-    # *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** ***
+    # *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** ***
     # NOTE: USER: Insert Sports Synergy Tech Credentials below
     
-    elem1 = driver.find_element_by_name("txtUserName")
-    elem2 = driver.find_element_by_name("txtPassword")
+    user = driver.find_element_by_name("txtUserName")
+    pword = driver.find_element_by_name("txtPassword")
 
     # Clear previous inputs
-    elem1.clear() 
-    elem2.clear()
+    user.clear() 
+    pword.clear()
 
     # Send the User's SST Email and Pass to the text field elements
-    elem1.send_keys("") # Insert Email inside of quotes
-    elem2.send_keys("")  # Insert Password inside of quotes
+    user.send_keys("sullivanc@denison.edu") # Insert Email inside of quotes
+    pword.send_keys("Bigred1014")  # Insert Password inside of quotes
     
-    elem2.send_keys(Keys.RETURN) # Presses "Enter" Key, submitting the credentials to SST
-    # *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** ***
+    pword.send_keys(Keys.RETURN) # Presses "Enter" Key, submitting the credentials to SST
+
+    # *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** ***
     # Extended Box Score (EBS) Collections
 
     # WebDriverWait allows us to wait until a certain condition is met. In this case we're waiting for the "Game" button.
+    ## Path used to access 'Game' button
+    Game_xpath = '/html/body/form/table/tbody/tr[2]/td[2]/table/tbody/tr/td[1]/div/div[2]/center/div[2]/div[2]/table[3]/tbody/tr[2]/td/center/a/font/b'
     wait = WebDriverWait(driver, 10)
-    wait.until(EC.presence_of_element_located((By.XPATH, '/html/body/form/table/tbody/tr[2]/td[2]/table/tbody/tr/td[1]/div/div[2]/center/div[2]/div[2]/table[3]/tbody/tr[2]/td/center/a/font/b')))
-    gameButton = driver.find_element_by_xpath('/html/body/form/table/tbody/tr[2]/td[2]/table/tbody/tr/td[1]/div/div[2]/center/div[2]/div[2]/table[3]/tbody/tr[2]/td/center/a/font/b')
+    wait.until(EC.presence_of_element_located((By.XPATH, Game_xpath))) ## Wait until the 'Game' button loads in
+    gameButton = driver.find_element_by_xpath(Game_xpath)
     gameButton.click()
 
-    # Uses the 'dropdown' function in order to find the correct 'dropdown string' for the team on the SST site.
-    # This string is then entered into the textbox at 'dropdownpath'.
+    # Use the 'dropdown' function in order to find the correct 'dropdown string' for the team on the SST site.
+    # This string is then entered into the textbox at 'dropdownpath', we wait for the textbox to load in before we fill it.
+    dropdown_wait = WebDriverWait(driver, 10)
+    dropdown_wait.until(EC.presence_of_element_located((By.XPATH, '//*[@id="ctl00_MainContent_lstTeamA"]'))) ## Wait until the 'Game' button loads in
     DDstring = dropdown(team)
     dropdownpath = '//*[@id="ctl00_MainContent_lstTeamA"]/option[text()="{}"]'.format(DDstring)
     elem = driver.find_element_by_xpath(dropdownpath).click()
     time.sleep(3)
-
     # row_count is the number of games the current team played this season. 
     row_count = len(driver.find_elements_by_xpath("//table[2]/tbody/tr"))
-    
+
     # We iterate through the table containing every game for the current team in this season, and select (click) each one.
+    ## Once we select the game, we can access the game's data
+    shortWait = WebDriverWait(driver, 5)
+    shortWait.until(EC.presence_of_element_located((By.XPATH, '/html/body/form/table/tbody/tr[2]/td[2]/table/tbody/tr/td[1]/div/span/table[2]/tbody/tr[2]/td[2]/a')))
+
+    # Can't have games that don't have EBS
     for i in range(2, row_count + 1):
         path = "/html/body/form/table/tbody/tr[2]/td[2]/table/tbody/tr/td[1]/div/span/table[2]/tbody/tr[{}]/td[2]/a".format(i)
-        wait.until(EC.presence_of_element_located((By.XPATH, path)))
-        elem = driver.find_element_by_xpath(path).click()
-
-    driver.switch_to.default_content()
+        elem = driver.find_element_by_xpath(path)
+        print(elem.text)
+        if elem.text != "Denison(OH)@MountVernon":
+            elem.click()
     # Now we have a tab open for each game played in the season, each tab has the EBS we want to scrape.
-    for i in range(1, len(driver.window_handles)): # Skip the first tab (the list of games)
+    driver.switch_to.default_content()
+
+    ## Preliminary for loop to make sure each game has an EBS, before we dive into the fat for loop
+    ## If a game doesn't have 'home team' and 'away team' elements, then it doesn't have an EBS
+    ## NOTE: if a game has an EBS, it will start on the EBS tab
+    
+    home_xpath = '/html/body/form/table/tbody/tr[2]/td[2]/table/tbody/tr/td[1]/div/span/nobr/div/table[1]/tbody/tr[1]/td[1]'
+    away_xpath = '/html/body/form/table/tbody/tr[2]/td[2]/table/tbody/tr/td[1]/div/span/nobr/div/table[3]/tbody/tr[1]/td[1]'
+    EBS_xpath =  '//*[@id="ctl00_MainContent_btnBoxScore"]'
+    
+
+    # need a list of indices that we skip - these are games that don't have Extended Box Scores -- no data
+    for i in range(1, len(driver.window_handles)): 
+
         driver.switch_to.window(driver.window_handles[i])
-        wait = WebDriverWait(driver, 30) # Cannot proceed until we find this element
-        wait.until(EC.presence_of_element_located((By.XPATH, '/html/body/form/table/tbody/tr[2]/td[2]/table/tbody/tr/td[1]/div/span/nobr/div/table[1]/tbody/tr[1]/td[1]')))
-        hometeam = driver.find_element_by_xpath('/html/body/form/table/tbody/tr[2]/td[2]/table/tbody/tr/td[1]/div/span/nobr/div/table[1]/tbody/tr[1]/td[1]')
 
-        wait.until(EC.presence_of_element_located((By.XPATH, '/html/body/form/table/tbody/tr[2]/td[2]/table/tbody/tr/td[1]/div/span/nobr/div/table[3]/tbody/tr[1]/td[1]')))
-        awayteam = driver.find_element_by_xpath('/html/body/form/table/tbody/tr[2]/td[2]/table/tbody/tr/td[1]/div/span/nobr/div/table[3]/tbody/tr[1]/td[1]')
+        # Find Home team
+        wait = WebDriverWait(driver, 30) 
+        wait.until(EC.presence_of_element_located((By.XPATH, home_xpath)))
+        hometeam = driver.find_element_by_xpath(home_xpath)
 
-        row_count_table1 = len(driver.find_elements_by_xpath("/html/body/form/table/tbody/tr[2]/td[2]/table/tbody/tr/td[1]/div/span/nobr/div/table[1]/tbody/tr"))
-        row_count_table2 = len(driver.find_elements_by_xpath("/html/body/form/table/tbody/tr[2]/td[2]/table/tbody/tr/td[1]/div/span/nobr/div/table[3]/tbody/tr"))
-        
+        # Find Away team
+        wait.until(EC.presence_of_element_located((By.XPATH, away_xpath)))
+        awayteam = driver.find_element_by_xpath(away_xpath)
+
+        row_count_table1 = len(driver.find_elements_by_xpath('/html/body/form/table/tbody/tr[2]/td[2]/table/tbody/tr/td[1]/div/span/nobr/div/table[1]/tbody/tr'))
+        row_count_table2 = len(driver.find_elements_by_xpath('/html/body/form/table/tbody/tr[2]/td[2]/table/tbody/tr/td[1]/div/span/nobr/div/table[3]/tbody/tr'))
+
         # Variable counts for both EBS tables on each tab.
         col_count_table1 = 16 
         col_count_table2 = 22 
@@ -128,7 +170,8 @@ def teamData(team, data1, data2, opp1, opp2):
         tempOuter2 = []
         tempOuter3 = []
         tempOuter4 = []
-        
+    
+
         """
         If the current team is the home team, we collect both Home EBS tables (1st and 2nd for loops) and both Away EBS tables
         (3rd and 4th for loops). This logic proceeds with the formatting of the table - the Home team's tables are always first
@@ -144,6 +187,7 @@ def teamData(team, data1, data2, opp1, opp2):
                     if len(tempInner) == 15:
                         tempOuter1.append(tempInner)
             data1.append(tempOuter1) # append this table (stored as a list of lists) into the team LoLoL
+
 
             for i in range(2, row_count_table1 + 1): # team table 2 (Home)
                 tempInner = []
@@ -174,6 +218,7 @@ def teamData(team, data1, data2, opp1, opp2):
                     if len(tempInner) == 15:
                         tempOuter4.append(tempInner)
             opp2.append(tempOuter4)
+
 
         else: 
             """
@@ -275,101 +320,45 @@ def toPanda2(data2, opp2, teamname):
         df.to_csv(csv_name)
         counter = counter + 1
 
+def store(teamname,dictionary):
+    ''' - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+    Runs teamData, toPanda1, and toPanda2 on each team in the NCAC, effectively gathering and storing
+    all EBS data for every team.
+    - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - '''
+    d = dictionary[str(teamname)]
+
+    teamData(teamname, d["Data1"], d["Data2"], d["Opp1"], d["Opp2"])
+    toPanda1(d["Data1"], d["Opp1"], teamname)
+    toPanda2(d["Data2"], d["Opp2"], teamname)   
+
+def dictify(teamname):
+    # names of the 4 different lists needed for each team
+    names = ["Data1", "Data2", "Opp1", "Opp2"]
+
+    d = {}
+    for lst in names:
+        d[lst] = []
+
+    return d
+
 def main():
-    # Initialize NCAC team datasets globally, will eventually be converted to Pandas, then exported as CSVs.
-    DenisonData1 = [] #Denison tables 1 and 2
-    DenisonData2 = []
-    DenisonOpp1 = [] #Denison opponent tables 1 and 2
-    DenisonOpp2 = []
+    NCAC = ["Denison", "Witt", "Wooster", "OWU", "Hiram", "Wabash", "Depauw", "Oberlin", "Kenyon", "Allegheny"]  
 
-    WittData1 = []
-    WittData2 = []
-    WittOpp1 = []
-    WittOpp2 = []
-
-    WoosterData1 = []
-    WoosterData2 = []
-    WoosterOpp1 = []
-    WoosterOpp2 = []
-
-    OWUData1 = []
-    OWUData2 = []
-    OWUOpp1 = []
-    OWUOpp2 = []
-
-    HiramData1 = []
-    HiramData2 = []
-    HiramOpp1 = []
-    HiramOpp2 = []
-
-    WabashData1 = []
-    WabashData2 = []
-    WabashOpp1 = []
-    WabashOpp2 = []
-
-    DepauwData1 = []
-    DepauwData2 = []
-    DepauwOpp1 = []
-    DepauwOpp2 = []
-
-    OberlinData1 = []
-    OberlinData2 = []
-    OberlinOpp1 = []
-    OberlinOpp2 = []
-
-    KenyonData1 = []
-    KenyonData2 = []
-    KenyonOpp1 = []
-    KenyonOpp2 = []
-    
-    AlleghenyData1 = []
-    AlleghenyData2 = []
-    AlleghenyOpp1 = []
-    AlleghenyOpp2 =
-
-    # Collect data for every NCAC team
-    NCAC = ["Denison", "Wittenberg", "Wooster", "OWU", "Hiram", "Wabash", "Depauw", "Oberlin", "Kenyon", "Allegheny"]   
+    dictlist = []
+    # Create list dictionaries for every NCAC team
     for team in NCAC:
-        if team == "Denison":
-            teamData(team, DenisonData1, DenisonData2, DenisonOpp1, DenisonOpp2)
-            toPanda1(DenisonData1, DenisonOpp1, "Denison")
-            toPanda2(DenisonData2, DenisonOpp2, "Denison")
-        elif team == "Wittenberg":
-            teamData(team, WittData1, WittData2, WittOpp1, WittOpp2)
-            toPanda1(WittData1, WittOpp1, "Wittenberg")
-            toPanda2(WittData2, WittOpp2, "Wittenberg")
-        elif team == "Wooster":
-            teamData(team, WoosterData1, WoosterData2, WoosterOpp1, WoosterOpp2)
-            toPanda1(WoosterData1, WoosterOpp1, "Wooster")
-            toPanda2(WoosterData2, WoosterOpp2, "Wooster")
-        elif team == "OWU":
-            teamData(team, OWUData1, OWUData2, OWUOpp1, OWUOpp2)
-            toPanda1(OWUData1, OWUOpp1, "OWU")
-            toPanda2(OWUData2, OWUOpp2, "OWU")
-        elif team == "Hiram":
-            teamData(team, HiramData1, HiramData2, HiramOpp1, HiramOpp2)
-            toPanda1(HiramData1, HiramOpp1, "Hiram")
-            toPanda2(HiramData2, HiramOpp2, "Hiram")
-        elif team == "Wabash":
-            teamData(team, WabashData1, WabashData2, WabashOpp1, WabashOpp2)
-            toPanda1(WabashData1, WabashOpp1, "Wabash")
-            toPanda2(WabashData2, WabashOpp2, "Wabash")
-        elif team == "Depauw":
-            teamData(team, DepauwData1, DepauwData2, DepauwOpp1, DepauwOpp2)
-            toPanda1(DepauwData1, DepauwOpp1, "Depauw")
-            toPanda2(DepauwData2, DepauwOpp2, "Depauw")
-        elif team == "Oberlin":
-            teamData(team, OberlinData1, OberlinData2, OberlinOpp1, OberlinOpp2)
-            toPanda1(OberlinData1, OberlinOpp1, "Oberlin")
-            toPanda2(OberlinData2, OberlinOpp2, "Oberlin")
-        elif team == "Kenyon":
-            teamData(team, KenyonData1, KenyonData2, KenyonOpp1, KenyonOpp2)
-            toPanda1(KenyonData1, KenyonOpp1, "Kenyon")
-            toPanda2(KenyonData2, KenyonOpp2, "Kenyon")
-        if team == "Allegheny":
-            teamData(team, AlleghenyData1, AlleghenyData2, AlleghenyOpp1, AlleghenyOpp2)
-            toPanda1(AlleghenyData1, AlleghenyOpp1, "Allegheny")
-            toPanda2(AlleghenyData2, AlleghenyOpp2, "Allegheny")
-            
+        d_name = str(team) + "Dict"  # Name dictionaries by team
+        d_name = dictify(team)
+        dictlist.append(d_name)
+
+    # Create dictionary storing all team dictionaries
+    dict_dict = {}
+    for i in range(len(NCAC)):
+        dict_dict[NCAC[i]] = dictlist[i]
+
+    # Collect data for every NCAC team 
+    for team in NCAC:
+        store(team,dict_dict)
+        
 if __name__ == "__main__":
     main()
