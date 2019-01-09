@@ -3,7 +3,7 @@
 -- Josh Blaz
 -- Denison University -- c/o 2019
 -- blaz_j1@denison.edu
-NOTE: User must enter SST credentials below @ lines 88 & 89
+NOTE: User must enter SST credentials below @ lines 96 & 97 in order to run this program.
 """
 
 # Imports allowing the use of Selenium and Geckodriver. 
@@ -93,8 +93,8 @@ def teamData(team, data1, data2, opp1, opp2):
     pword.clear()
 
     # Send the User's SST Email and Pass to the text field elements
-    user.send_keys("sullivanc@denison.edu") # Insert Email inside of quotes
-    pword.send_keys("Bigred1014")  # Insert Password inside of quotes
+    user.send_keys("") # Insert Email inside of quotes
+    pword.send_keys("")  # Insert Password inside of quotes
     
     pword.send_keys(Keys.RETURN) # Presses "Enter" Key, submitting the credentials to SST
 
