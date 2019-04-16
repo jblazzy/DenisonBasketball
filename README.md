@@ -16,10 +16,10 @@ Download Geckodriver: <br/>
 brew install geckodriver
 
 Download Selenium:<br/>
-pip install selenium
+sudo pip install selenium
 
 Download Pandas:<br/>
-pip install pandas 
+sudo pip install pandas 
 
 ## Documentation
 https://github.com/mozilla/geckodriver/releases <br/>
