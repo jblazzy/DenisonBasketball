@@ -23,4 +23,5 @@ pip install pandas
 
 ## Documentation
 https://github.com/mozilla/geckodriver/releases <br/>
-https://docs.seleniumhq.org/docs/
+https://docs.seleniumhq.org/docs/ <br/>
+https://pandas.pydata.org/pandas-docs/stable/
